@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link rel="stylesheet" href="styles.css">
+  <title>Bonde de Nova Russas</title>
+</head>
+<body>
+
+  <div id="welcomeScreen">
+    <div class="welcome-box">
+      <h1 class="welcome-title">Bonde de Nova Russas</h1>
+      <div class="mascot-container">
+        <img src="790c8191287a389131ccb943681ac8e0.gif" alt="Mascote" class="mascot">
+      </div>
+      <div class="rules-section">
+        <h3>Regras da Casa</h3>
+        <table class="rules-table">
+          <tbody id="rulesTableBody"></tbody>
+        </table>
+      </div>
+      <button id="btnEnter">Entrar no Chat</button>
+    </div>
+  </div>
+
+  <div id="appContainer" class="hidden">
+    <div id="sidebarOverlay" class="hidden"></div>
+    <aside id="sidebar">
+      <div class="sidebar-header">BNR Chat</div>
+      <div class="topic-list"></div>
+      <div class="sidebar-footer">
+        <button id="openAdminPanel" class="admin-link hidden">⚙️ Painel ADM</button>
+        <button id="adminBtn" class="admin-link">[ADM]</button>
+      </div>
+    </aside>
+
+    <main id="main">
+      <header id="top">
+        <button id="menuToggle">☰</button>
+        <div id="boardTitle">/geral</div>
+        <div style="width:30px"></div>
+      </header>
+      <div id="content"></div>
+      <footer id="footer">
+        <form id="postForm">
+          <div class="input-container">
+            <input id="postName" placeholder="Nick (opcional)" autocomplete="off">
+            <div class="input-row">
+              <input type="file" id="fileInput" style="display:none" accept="image/*">
+              <button type="button" id="btnAttach">📎</button>
+              <textarea id="postText" placeholder="Mensagem" rows="1"></textarea>
+              <button type="submit" id="btnSend">➤</button>
+            </div>
+          </div>
+        </form>
+      </footer>
+    </main>
+  </div>
+
+  <div id="adminPanelModal" class="modal hidden">
+    <div class="modal-content">
+      <header class="modal-header">
+        <h2>Configurações</h2>
+        <button id="closeAdminPanel">✕</button>
+      </header>
+      <div class="modal-body">
+        <label>Novas Regras:</label>
+        <textarea id="editRulesInput" rows="5"></textarea>
+        <button onclick="window.saveRulesAction()" style="width:100%; padding:10px; margin-top:10px; background:var(--accent-color); border:none; color:white; border-radius:8px;">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
