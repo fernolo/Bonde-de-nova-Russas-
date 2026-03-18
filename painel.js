@@ -1,8 +1,8 @@
 const PainelADM = {
     estaLogado: false,
-    
+
     login: async () => {
-        const senha = prompt("Credenciais de Administração:");
+        const senha = prompt("Credenciais:");
         if (!senha) return;
         try {
             const response = await fetch('/api/auth', {
@@ -13,20 +13,21 @@ const PainelADM = {
             const data = await response.json();
             if (data.success) {
                 PainelADM.estaLogado = true;
-                alert("Modo Administrador Ativado.");
-                if(qs('#adminBtn')) qs('#adminBtn').textContent = "✅ PAINEL ATIVO";
+                qs('#adminBtn').style.display = 'none';
+                qs('#adminTools').style.display = 'flex';
+                alert("Acesso Administrativo Liberado.");
                 renderPosts();
             } else {
                 alert("Senha incorreta.");
             }
         } catch (e) {
-            alert("Erro de conexão com o servidor API.");
+            alert("Erro de conexão com o servidor.");
         }
     },
 
     apagarPost: (index) => {
         if(!PainelADM.estaLogado) return;
-        if(confirm("Deseja eliminar esta mensagem permanentemente?")) {
+        if(confirm("Deseja apagar permanentemente?")) {
             appState.posts.splice(index, 1);
             save();
             renderPosts();
@@ -35,37 +36,24 @@ const PainelADM = {
 
     editarRegras: () => {
         if(!PainelADM.estaLogado) return;
-        const novasRegras = prompt("Edite as Regras do Grupo:", appState.rules || "");
-        if(novasRegras !== null) {
-            appState.rules = novasRegras;
-            save();
-            alert("Regras atualizadas.");
-        }
+        const nova = prompt("Edite as regras:", appState.rules);
+        if(nova !== null) { appState.rules = nova; save(); }
     },
 
     gerirBoards: () => {
         if(!PainelADM.estaLogado) return;
-        const acao = prompt("Escolha: [1] Criar Board [2] Editar Board [3] Eliminar Board");
-        
+        const acao = prompt("[1] Criar Board [2] Configurar Board [3] Remover");
         if(acao === "1") {
-            const nome = prompt("Nome da nova Board (ex: /hacker):");
-            if(nome) {
-                appState.boards.push({
-                    name: nome,
-                    p_msg: true, p_img: true, p_audio: true,
-                    blur: false, hidden: false, senha: null
-                });
-                alert("Board criada.");
-            }
+            const n = prompt("Nome (ex: /vip):");
+            if(n) appState.boards.push({ name: n, p_msg: true, p_img: true, p_audio: true, blur: false, senha: null });
         } else if(acao === "2") {
-            const nomeB = prompt("Nome da board para editar:");
+            const nomeB = prompt("Qual board deseja editar?");
             const b = appState.boards.find(x => x.name === nomeB);
             if(b) {
-                b.blur = confirm("Ativar Blur (Conteúdo sensível)?");
-                b.hidden = confirm("Ocultar board da lista pública?");
+                b.blur = confirm("Ativar Blur?");
                 b.p_img = confirm("Permitir Imagens?");
-                b.p_audio = confirm("Permitir Áudios?");
-                const s = prompt("Definir senha de acesso (vazio para público):");
+                b.p_audio = confirm("Permitir Áudio?");
+                const s = prompt("Senha da Board (vazio para nenhuma):");
                 b.senha = s || null;
             }
         }
@@ -75,29 +63,18 @@ const PainelADM = {
 
     blacklist: () => {
         if(!PainelADM.estaLogado) return;
-        const palavra = prompt("Adicionar palavra proibida ao filtro:");
-        if(palavra) {
-            if(!appState.blacklist) appState.blacklist = [];
-            appState.blacklist.push(palavra.toLowerCase());
-            save();
-            alert("Palavra adicionada à Blacklist.");
-        }
+        const p = prompt("Palavra para bloquear:");
+        if(p) { appState.blacklist.push(p.toLowerCase()); save(); }
     },
 
     gerirModeradores: () => {
         if(!PainelADM.estaLogado) return;
-        const acao = prompt("[1] Adicionar Mod [2] Remover Mod [3] Mudar Senha");
-        if(acao === "1") {
-            const nick = prompt("Nick do Moderador:");
-            const pass = prompt("Senha do Moderador:");
-            if(nick && pass) {
-                if(!appState.mods) appState.mods = [];
-                appState.mods.push({ nick, pass });
-            }
-        } else if(acao === "2") {
-            const nickR = prompt("Nick para remover:");
-            appState.mods = appState.mods.filter(m => m.nick !== nickR);
+        const n = prompt("Nick do Mod:");
+        const s = prompt("Senha do Mod:");
+        if(n && s) {
+            if(!appState.mods) appState.mods = [];
+            appState.mods.push({ nick: n, pass: s });
+            save();
         }
-        save();
     }
 };
