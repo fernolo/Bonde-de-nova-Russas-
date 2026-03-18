@@ -20,15 +20,29 @@ const PainelADM = {
                     alert("Senha incorreta.");
                 }
             } else {
-                alert("Erro: Verifique se o arquivo auth.js está dentro da pasta API (maiúsculo).");
+                const retry = await fetch('/API/auth.js', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: senha })
+                });
+                if (retry.ok) {
+                    const data = await retry.json();
+                    if (data.success) {
+                        PainelADM.estaLogado = true;
+                        if(qs('#adminBtn')) qs('#adminBtn').textContent = "✅ ADM";
+                        renderPosts();
+                        return;
+                    }
+                }
+                alert("Erro: O servidor não encontrou a rota /API/auth. Verifique se o Deploy terminou.");
             }
         } catch (e) {
-            alert("Erro de comunicação com o servidor.");
+            alert("Erro de conexão com o servidor.");
         }
     },
     apagarPost: (index) => {
         if(!PainelADM.estaLogado) return;
-        if(confirm("Apagar mensagem?")) {
+        if(confirm("Deseja apagar esta mensagem permanentemente?")) {
             appState.posts.splice(index, 1);
             save();
             renderPosts();
