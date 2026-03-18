@@ -1,54 +1,10 @@
-const STORAGE_KEY = 'bnr_v28_final';
-const _SECRET_KEY = "jqquuj"; 
-const _0x5f21 = (s) => s.split('').map(c => String.fromCharCode(c.charCodeAt(0) - 5)).join('');
-
-let appState = {
-    route: '/geral',
-    posts: [],
-    boards: [{name: '/geral'}, {name: '/tecnologia'}],
-    rules: "1. Sem spam\n2. Respeite os membros",
-    isAdmin: false,
-    currentFile: null
-};
+const STORAGE_KEY = 'bnr_prod_v1';
+let appState = { route: '/geral', posts: [], boards: [{name: '/geral'}, {name: '/dev'}], currentFile: null };
 
 const qs = (sel) => document.querySelector(sel);
 
-function save() { 
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-    } catch (e) {
-        if (appState.posts.length > 0) {
-            appState.posts.splice(0, 5); 
-            save(); 
-        }
-    }
-}
-
-function load() { 
-    const data = localStorage.getItem(STORAGE_KEY);
-    if(data) appState = JSON.parse(data);
-}
-
-function renderTopics() {
-    const list = qs('.topic-list');
-    if(!list) return;
-    list.innerHTML = '';
-    appState.boards.forEach(b => {
-        const btn = document.createElement('button');
-        btn.className = 'topic-item';
-        btn.innerHTML = `<div class="topic-avatar">${b.name.charAt(1).toUpperCase()}</div><span><strong>${b.name}</strong></span>`;
-        btn.onclick = () => {
-            appState.route = b.name; 
-            qs('#boardTitle').textContent = b.name;
-            renderPosts();
-            if(window.innerWidth < 768) {
-                qs('#sidebar').classList.remove('active');
-                qs('#sidebarOverlay').classList.add('hidden');
-            }
-        };
-        list.appendChild(btn);
-    });
-}
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); }
+function load() { const data = localStorage.getItem(STORAGE_KEY); if(data) appState = JSON.parse(data); }
 
 function renderPosts() {
     const cont = qs('#content');
@@ -57,84 +13,85 @@ function renderPosts() {
     appState.posts.filter(p => p.board === appState.route).forEach(p => {
         const div = document.createElement('div');
         div.className = 'post';
-        let media = p.file ? `<img src="${p.file}" style="width:100%; border-radius:6px; margin-top:8px; display:block;">` : '';
-        div.innerHTML = `<b style='color:var(--accent-color); font-size: 0.9rem;'>${p.name || 'Anônimo'}</b>${media}<div style="margin-top:5px;">${p.text}</div>`;
+        let media = '';
+        if(p.file) {
+            if(p.file.type.startsWith('image/')) media = `<img src="${p.file.data}" style="width:100%; border-radius:8px; margin-top:5px;">`;
+            else if(p.file.type.startsWith('audio/')) media = `<audio src="${p.file.data}" controls style="width:200px; height:40px; filter:invert(1);"></audio>`;
+        }
+        div.innerHTML = `<b style="color:#50a7ea; font-size:12px;">${p.name}</b>${media}<div style="margin-top:4px;">${p.text}</div>`;
         cont.appendChild(div);
     });
     cont.scrollTop = cont.scrollHeight;
 }
 
-if(qs('#menuToggle')) {
-    qs('#menuToggle').onclick = () => {
-        qs('#sidebar').classList.add('active');
-        qs('#sidebarOverlay').classList.remove('hidden');
-    };
-}
+qs('#btnAttach').onclick = () => qs('#fileInput').click();
 
-if(qs('#sidebarOverlay')) {
-    qs('#sidebarOverlay').onclick = () => {
-        qs('#sidebar').classList.remove('active');
-        qs('#sidebarOverlay').classList.add('hidden');
-    };
-}
-
-if(qs('#btnAttach')) qs('#btnAttach').onclick = () => qs('#fileInput').click();
-
-if(qs('#fileInput')) {
-    qs('#fileInput').onchange = (e) => {
-        const file = e.target.files[0];
-        if(!file) return;
+qs('#fileInput').onchange = async (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    if(file.type.startsWith('image/')) {
+        appState.currentFile = { data: await Defesa.limparFoto(file), type: file.type };
+    } else {
         const reader = new FileReader();
-        reader.onload = (ev) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const max = 800;
-                let w = img.width, h = img.height;
-                if (w > h && w > max) { h *= max/w; w = max; }
-                else if (h > max) { w *= max/h; h = max; }
-                canvas.width = w; canvas.height = h;
-                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                appState.currentFile = canvas.toDataURL('image/jpeg', 0.7);
-                qs('#btnAttach').style.color = '#4CAF50';
-            };
-            img.src = ev.target.result;
-        };
+        reader.onload = (ev) => appState.currentFile = { data: ev.target.result, type: file.type };
         reader.readAsDataURL(file);
-    };
-}
+    }
+    qs('#fileName').textContent = file.name;
+    qs('#fileInfo').classList.remove('hidden');
+};
 
-if(qs('#postForm')) {
-    qs('#postForm').onsubmit = (e) => {
-        e.preventDefault();
-        const txtInput = qs('#postText');
-        const nickInput = qs('#postName');
-        if(!txtInput.value && !appState.currentFile) return;
+qs('#btnRecord').onclick = () => {
+    if (typeof mediaRecorder !== 'undefined' && mediaRecorder.state === "recording") {
+        AudioBNR.parar();
+    } else {
+        AudioBNR.iniciar(qs('#btnRecord'));
+    }
+};
 
-        appState.posts.push({ 
-            board: appState.route, 
-            name: nickInput.value || 'Anônimo', 
-            text: txtInput.value, 
-            file: appState.currentFile 
-        });
+window.addEventListener('audioPronto', (e) => {
+    appState.currentFile = { data: e.detail, type: 'audio/webm' };
+    qs('#fileName').textContent = "Áudio Gravado 🎙️";
+    qs('#fileInfo').classList.remove('hidden');
+});
 
-        if(appState.posts.length > 100) appState.posts.shift();
+qs('#postForm').onsubmit = (e) => {
+    e.preventDefault();
+    const txt = qs('#postText');
+    if(!txt.value && !appState.currentFile) return;
 
-        appState.currentFile = null;
-        txtInput.value = '';
-        qs('#btnAttach').style.color = 'var(--accent-color)';
-        save();
-        renderPosts();
-    };
-}
+    appState.posts.push({
+        board: appState.route,
+        name: "Anônimo",
+        text: typeof Defesa !== 'undefined' ? Defesa.sanitizar(txt.value) : txt.value,
+        file: appState.currentFile
+    });
 
-if(qs('#btnEnter')) {
-    qs('#btnEnter').onclick = () => {
-        qs('#welcomeScreen').classList.add('hidden');
-        qs('#appContainer').classList.remove('hidden');
-        renderTopics();
-        renderPosts();
-    };
-}
+    txt.value = '';
+    appState.currentFile = null;
+    qs('#fileInfo').classList.add('hidden');
+    save();
+    renderPosts();
+};
+
+qs('#btnEnter').onclick = () => {
+    qs('#welcomeScreen').classList.add('hidden');
+    qs('#appContainer').classList.remove('hidden');
+    const list = qs('.topic-list');
+    list.innerHTML = '';
+    appState.boards.forEach(b => {
+        const btn = document.createElement('button');
+        btn.className = 'topic-item';
+        btn.style = "width:100%; padding:15px; background:none; border:none; color:white; text-align:left; cursor:pointer;";
+        btn.innerHTML = `<span>${b.name}</span>`;
+        btn.onclick = () => { appState.route = b.name; qs('#boardTitle').textContent = b.name; renderPosts(); };
+        list.appendChild(btn);
+    });
+    renderPosts();
+};
+
+qs('#btnRemoveFile').onclick = () => {
+    appState.currentFile = null;
+    qs('#fileInfo').classList.add('hidden');
+};
 
 load();
