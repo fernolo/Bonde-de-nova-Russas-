@@ -12,10 +12,7 @@
             <h1>Bonde de Nova Russas</h1>
             <img src="790c8191287a389131ccb943681ac8e0.gif" alt="Logo BNR" id="mainLogo">
             <div class="rules-section">
-                <table>
-                    <tbody id="rulesDisplay">
-                        </tbody>
-                </table>
+                <table><tbody id="rulesDisplay"></tbody></table>
             </div>
             <button id="btnEnter" class="tg-main-btn">ENTRAR NO CHAT</button>
         </div>
@@ -25,15 +22,13 @@
         <aside id="sidebar">
             <div class="sidebar-header">Canais BNR</div>
             <div class="topic-list" id="boardList"></div>
-            
             <div class="sidebar-footer">
                 <button id="adminBtn" class="admin-link" onclick="PainelADM.login()">⚙️ Entrar como ADM</button>
-                
                 <div id="adminTools" style="display:none; flex-direction: column; gap: 5px; padding: 10px; background: #17212b; border-radius: 8px; margin-top: 10px;">
                     <button onclick="PainelADM.gerirBoards()" class="admin-tool-btn">📂 Gerenciar Boards</button>
                     <button onclick="PainelADM.editarRegras()" class="admin-tool-btn">📜 Editar Regras</button>
                     <button onclick="PainelADM.blacklist()" class="admin-tool-btn">🚫 Blacklist</button>
-                    <button onclick="PainelADM.gerirModeradores()" class="admin-tool-btn">👥 Moderadores</button>
+                    <button onclick="PainelADM.logout()" class="admin-tool-btn" style="background:#ff5252; margin-top:10px; text-align:center;">🏃 Sair do ADM</button>
                 </div>
             </div>
         </aside>
