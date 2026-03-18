@@ -13,22 +13,31 @@
             <img src="790c8191287a389131ccb943681ac8e0.gif" alt="Logo BNR" id="mainLogo">
             <div class="rules-section">
                 <table>
-                    <tr><td>• Sem spam ou flood.</td></tr>
-                    <tr><td>• Respeite os outros membros.</td></tr>
-                    <tr><td>• Proibido conteúdo ilegal.</td></tr>
+                    <tbody id="rulesDisplay">
+                        </tbody>
                 </table>
             </div>
             <button id="btnEnter" class="tg-main-btn">ENTRAR NO CHAT</button>
         </div>
     </div>
+
     <div id="appContainer" class="hidden">
         <aside id="sidebar">
             <div class="sidebar-header">Canais BNR</div>
-            <div class="topic-list"></div>
+            <div class="topic-list" id="boardList"></div>
+            
             <div class="sidebar-footer">
-                <button id="adminBtn" class="admin-link" onclick="PainelADM.login()">⚙️ Painel ADM</button>
+                <button id="adminBtn" class="admin-link" onclick="PainelADM.login()">⚙️ Entrar como ADM</button>
+                
+                <div id="adminTools" style="display:none; flex-direction: column; gap: 5px; padding: 10px; background: #17212b; border-radius: 8px; margin-top: 10px;">
+                    <button onclick="PainelADM.gerirBoards()" class="admin-tool-btn">📂 Gerenciar Boards</button>
+                    <button onclick="PainelADM.editarRegras()" class="admin-tool-btn">📜 Editar Regras</button>
+                    <button onclick="PainelADM.blacklist()" class="admin-tool-btn">🚫 Blacklist</button>
+                    <button onclick="PainelADM.gerirModeradores()" class="admin-tool-btn">👥 Moderadores</button>
+                </div>
             </div>
         </aside>
+
         <main id="main">
             <header id="top">
                 <button id="menuToggle" class="icon-btn">☰</button>
@@ -55,6 +64,7 @@
             </footer>
         </main>
     </div>
+
     <script src="seguranca.js"></script>
     <script src="audio.js"></script>
     <script src="painel.js"></script>
