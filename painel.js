@@ -1,16 +1,27 @@
 const PainelADM = {
     estaLogado: false,
-    _key: "jqquuj", 
-    check: (input) => {
-        const coded = input.split('').map(c => String.fromCharCode(c.charCodeAt(0) + 5)).join('');
-        return coded === PainelADM._key;
-    },
-    login: () => {
+    login: async () => {
         const senha = prompt("Credenciais:");
-        if (PainelADM.check(senha)) {
-            PainelADM.estaLogado = true;
-            qs('#adminBtn').textContent = "✅ ADM";
-            renderPosts();
+        if (!senha) return;
+
+        try {
+            const response = await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: senha })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                PainelADM.estaLogado = true;
+                qs('#adminBtn').textContent = "✅ ADM";
+                renderPosts();
+            } else {
+                alert("Negado.");
+            }
+        } catch (e) {
+            alert("Erro de conexão.");
         }
     },
     apagarPost: (index) => {
