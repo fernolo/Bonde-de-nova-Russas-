@@ -1,51 +1,53 @@
 const PainelADM = {
     estaLogado: false,
-    login: async () => {
-        const senha = prompt("Credenciais:");
-        if (!senha) return;
-        try {
-            const response = await fetch('/API/auth', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password: senha })
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success) {
-                    PainelADM.estaLogado = true;
-                    if(qs('#adminBtn')) qs('#adminBtn').textContent = "✅ ADM";
-                    renderPosts();
-                } else {
-                    alert("Senha incorreta.");
-                }
-            } else {
-                const retry = await fetch('/API/auth.js', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password: senha })
-                });
-                if (retry.ok) {
-                    const data = await retry.json();
-                    if (data.success) {
-                        PainelADM.estaLogado = true;
-                        if(qs('#adminBtn')) qs('#adminBtn').textContent = "✅ ADM";
-                        renderPosts();
-                        return;
-                    }
-                }
-                alert("Erro: O servidor não encontrou a rota /API/auth. Verifique se o Deploy terminou.");
-            }
-        } catch (e) {
-            alert("Erro de conexão com o servidor.");
+    
+    // Gerenciamento de Mensagens e Regras
+    apagarPost: (id) => {
+        if(!PainelADM.estaLogado) return;
+        appState.posts.splice(id, 1);
+        save(); renderPosts();
+    },
+    editarRegras: () => {
+        if(!PainelADM.estaLogado) return;
+        const nova = prompt("Novas Regras:", appState.rules);
+        if(nova) { appState.rules = nova; save(); alert("Regras Atualizadas!"); }
+    },
+
+    // Gerenciamento de Boards
+    criarBoard: () => {
+        const nome = prompt("Nome da Board (ex: /tech):");
+        if(nome) {
+            appState.boards.push({ name: nome, p_msg: true, p_img: true, p_audio: true, blur: false, hidden: false, pass: null });
+            save(); alert("Board Criada!");
         }
     },
-    apagarPost: (index) => {
-        if(!PainelADM.estaLogado) return;
-        if(confirm("Deseja apagar esta mensagem permanentemente?")) {
-            appState.posts.splice(index, 1);
-            save();
-            renderPosts();
+    configurarBoard: (nome) => {
+        const b = appState.boards.find(x => x.name === nome);
+        if(!b) return;
+        b.blur = confirm(`Ativar Blur na ${nome}?`);
+        b.hidden = confirm(`Ocultar ${nome} (Apenas ADM vê)?`);
+        const p = prompt(`Senha para entrar na ${nome} (vazio para sem senha):`);
+        b.pass = p || null;
+        save();
+    },
+
+    // Gerenciamento de Moderadores
+    addMod: () => {
+        const nick = prompt("Nick do novo Mod:");
+        const pass = prompt("Senha do novo Mod:");
+        if(nick && pass) {
+            appState.mods.push({ nick, pass });
+            save(); alert("Moderador Adicionado!");
         }
+    },
+    removerMod: (nick) => {
+        appState.mods = appState.mods.filter(m => m.nick !== nick);
+        save(); alert("Moderador Removido!");
+    },
+
+    // Segurança
+    addBlacklist: () => {
+        const word = prompt("Palavra ou Termo para Blacklist:");
+        if(word) { appState.blacklist.push(word.toLowerCase()); save(); }
     }
 };
