@@ -1,10 +1,10 @@
-const STORAGE_KEY = 'bnr_system_v2';
+const STORAGE_KEY = 'bnr_prod_v2';
 let appState = { 
     route: '/geral', 
     posts: [], 
     boards: [
-        { name: '/geral', p_msg: true, p_img: true, p_audio: true, blur: false, hidden: false, senha: null },
-        { name: '/dev', p_msg: true, p_img: true, p_audio: true, blur: false, hidden: false, senha: null }
+        { name: '/geral', p_msg: true, p_img: true, p_audio: true, blur: false, senha: null },
+        { name: '/dev', p_msg: true, p_img: true, p_audio: true, blur: false, senha: null }
     ],
     blacklist: [],
     rules: "Sem spam. Respeite os membros."
@@ -32,7 +32,7 @@ function renderPosts() {
     appState.posts.filter(p => p.board === appState.route).forEach((p, i) => {
         const div = document.createElement('div');
         div.className = 'post';
-        if(currentB.blur) div.style.filter = 'blur(5px)';
+        if(currentB.blur) div.classList.add('blur-active');
         
         let media = '';
         if(p.file) {
@@ -58,10 +58,9 @@ qs('#btnEnter').onclick = () => {
 qs('#fileInput').onchange = async (e) => {
     const file = e.target.files[0];
     if(!file) return;
-    
     const currentB = appState.boards.find(b => b.name === appState.route);
-    if(file.type.startsWith('image/') && !currentB.p_img) return alert("Imagens proibidas aqui.");
-    if(file.type.startsWith('audio/') && !currentB.p_audio) return alert("Áudio proibido aqui.");
+    if(file.type.startsWith('image/') && !currentB.p_img) return alert("Imagens bloqueadas aqui.");
+    if(file.type.startsWith('audio/') && !currentB.p_audio) return alert("Áudio bloqueado aqui.");
 
     const reader = new FileReader();
     reader.onload = async (ev) => {
@@ -77,8 +76,7 @@ qs('#fileInput').onchange = async (e) => {
 
 qs('#btnRecord').onclick = () => {
     const currentB = appState.boards.find(b => b.name === appState.route);
-    if(!currentB.p_audio) return alert("Áudio desativado nesta board.");
-    
+    if(!currentB.p_audio) return alert("Áudio desativado.");
     if (typeof mediaRecorder !== 'undefined' && mediaRecorder.state === "recording") {
         AudioBNR.parar();
     } else if (typeof AudioBNR !== 'undefined') {
@@ -88,17 +86,17 @@ qs('#btnRecord').onclick = () => {
 
 window.addEventListener('audioPronto', (e) => {
     appState.currentFile = { data: e.detail, type: 'audio/webm' };
-    qs('#fileName').textContent = "Áudio Gravado";
+    qs('#fileName').textContent = "Voz Gravada";
     qs('#fileInfo').classList.remove('hidden');
 });
 
 qs('#postForm').onsubmit = (e) => {
     e.preventDefault();
     const txt = qs('#postText');
-    const val = txt.value.toLowerCase();
+    const msg = txt.value.toLowerCase();
     
-    if(appState.blacklist.some(p => val.includes(p))) {
-        return alert("Mensagem contém termos proibidos.");
+    if(appState.blacklist && appState.blacklist.some(p => msg.includes(p))) {
+        return alert("Termo proibido detectado.");
     }
 
     if(!txt.value && !appState.currentFile) return;
@@ -116,9 +114,6 @@ qs('#postForm').onsubmit = (e) => {
     renderPosts();
 };
 
-qs('#btnRemoveFile').onclick = () => {
-    appState.currentFile = null;
-    qs('#fileInfo').classList.add('hidden');
-};
+qs('#btnRemoveFile').onclick = () => { appState.currentFile = null; qs('#fileInfo').classList.add('hidden'); };
 
 load();
