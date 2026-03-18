@@ -7,13 +7,10 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
     <div id="welcomeScreen">
         <div class="welcome-box">
-            <h1 class="welcome-title">Bonde de Nova Russas</h1>
-            <div class="mascot-container">
-                <img src="790c8191287a389131ccb943681ac8e0.gif" alt="Logo BNR" id="mainLogo">
-            </div>
+            <h1>Bonde de Nova Russas</h1>
+            <img src="790c8191287a389131ccb943681ac8e0.gif" alt="Logo" id="mainLogo">
             <div class="rules-section">
                 <table class="rules-table">
                     <tr><td>• Sem spam ou flood.</td></tr>
@@ -21,29 +18,24 @@
                     <tr><td>• Proibido conteúdo ilegal.</td></tr>
                 </table>
             </div>
-            <button id="btnEnter" class="tg-button">ENTRAR NO CHAT</button>
+            <button id="btnEnter" class="tg-main-btn">ENTRAR NO CHAT</button>
         </div>
     </div>
 
     <div id="appContainer" class="hidden">
         <div id="sidebarOverlay" class="hidden"></div>
-        
         <aside id="sidebar">
             <div class="sidebar-header">Canais</div>
             <div class="topic-list"></div>
-            <div class="sidebar-footer">
-                <button class="admin-link" id="adminBtn">Painel ADM</button>
-            </div>
+            <button class="admin-link" id="adminBtn">Painel ADM</button>
         </aside>
 
         <main id="main">
             <header id="top">
                 <button id="menuToggle" class="icon-btn">☰</button>
-                <div class="header-group-info">
-                    <div class="group-text">
-                        <h2 id="boardTitle">/geral</h2>
-                        <span class="status">online agora</span>
-                    </div>
+                <div class="header-info">
+                    <span id="boardTitle">/geral</span>
+                    <small>online agora</small>
                 </div>
             </header>
 
@@ -54,14 +46,11 @@
                     <span id="fileName"></span>
                     <button type="button" id="btnRemoveFile">×</button>
                 </div>
-
                 <form id="postForm">
                     <div class="input-area">
                         <button type="button" id="btnAttach" class="icon-btn">📎</button>
                         <input type="file" id="fileInput" accept="image/*,video/*,audio/*" class="hidden">
-                        
                         <textarea id="postText" placeholder="Mensagem" rows="1"></textarea>
-                        
                         <button type="button" id="btnRecord" class="icon-btn">🎙️</button>
                         <button type="submit" id="btnSend" class="icon-btn">➤</button>
                     </div>
