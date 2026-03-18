@@ -4,5 +4,5 @@ export default function handler(req, res) {
   if (password === "elpepe") {
     return res.status(200).json({ success: true });
   }
-  res.status(401).json({ success: false });
+  return res.status(401).json({ success: false });
 }
