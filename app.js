@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'bnr_prod_v2';
+const STORAGE_KEY = 'bnr_prod_v3';
 let appState = { 
     route: '/geral', 
     posts: [], 
@@ -26,7 +26,6 @@ function renderPosts() {
     const cont = qs('#content');
     if(!cont) return;
     cont.innerHTML = '';
-    
     const currentB = appState.boards.find(b => b.name === appState.route) || appState.boards[0];
     
     appState.posts.filter(p => p.board === appState.route).forEach((p, i) => {
@@ -43,7 +42,11 @@ function renderPosts() {
         const btnA = (typeof PainelADM !== 'undefined' && PainelADM.estaLogado) ? 
             `<button onclick="PainelADM.apagarPost(${i})" style="color:#ff5252; border:none; background:none; font-size:10px; cursor:pointer; float:right;">[X]</button>` : '';
         
-        div.innerHTML = `<b style="color:#50a7ea; font-size:12px;">Anônimo</b> ${btnA}${media}<div style="margin-top:4px;">${p.text}</div>`;
+        const autorHTML = p.isMod ? 
+            `<b style="color:#50a7ea;">${p.autor}</b> <b style="color:#ff5252;">Dmitri</b>` : 
+            `<b style="color:#50a7ea;">Anônimo</b>`;
+        
+        div.innerHTML = `${autorHTML} ${btnA}${media}<div style="margin-top:4px;">${p.text}</div>`;
         cont.appendChild(div);
     });
     cont.scrollTop = cont.scrollHeight;
@@ -59,9 +62,8 @@ qs('#fileInput').onchange = async (e) => {
     const file = e.target.files[0];
     if(!file) return;
     const currentB = appState.boards.find(b => b.name === appState.route);
-    if(file.type.startsWith('image/') && !currentB.p_img) return alert("Imagens bloqueadas aqui.");
-    if(file.type.startsWith('audio/') && !currentB.p_audio) return alert("Áudio bloqueado aqui.");
-
+    if(file.type.startsWith('image/') && !currentB.p_img) return alert("Imagens bloqueadas.");
+    
     const reader = new FileReader();
     reader.onload = async (ev) => {
         appState.currentFile = { 
@@ -76,7 +78,7 @@ qs('#fileInput').onchange = async (e) => {
 
 qs('#btnRecord').onclick = () => {
     const currentB = appState.boards.find(b => b.name === appState.route);
-    if(!currentB.p_audio) return alert("Áudio desativado.");
+    if(!currentB.p_audio) return alert("Áudio bloqueado.");
     if (typeof mediaRecorder !== 'undefined' && mediaRecorder.state === "recording") {
         AudioBNR.parar();
     } else if (typeof AudioBNR !== 'undefined') {
@@ -86,25 +88,22 @@ qs('#btnRecord').onclick = () => {
 
 window.addEventListener('audioPronto', (e) => {
     appState.currentFile = { data: e.detail, type: 'audio/webm' };
-    qs('#fileName').textContent = "Voz Gravada";
+    qs('#fileName').textContent = "Áudio gravado";
     qs('#fileInfo').classList.remove('hidden');
 });
 
 qs('#postForm').onsubmit = (e) => {
     e.preventDefault();
     const txt = qs('#postText');
-    const msg = txt.value.toLowerCase();
-    
-    if(appState.blacklist && appState.blacklist.some(p => msg.includes(p))) {
-        return alert("Termo proibido detectado.");
-    }
-
+    if(appState.blacklist?.some(p => txt.value.toLowerCase().includes(p))) return alert("Mensagem proibida.");
     if(!txt.value && !appState.currentFile) return;
 
     appState.posts.push({
         board: appState.route,
         text: typeof Defesa !== 'undefined' ? Defesa.sanitizar(txt.value) : txt.value,
-        file: appState.currentFile
+        file: appState.currentFile,
+        isMod: PainelADM.estaLogado,
+        autor: PainelADM.estaLogado ? PainelADM.nickAtual : "Anônimo"
     });
 
     txt.value = '';
