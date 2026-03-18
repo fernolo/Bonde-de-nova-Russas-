@@ -7,35 +7,28 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
     <div id="welcomeScreen">
         <div class="welcome-box">
             <h1>Bonde de Nova Russas</h1>
-            <img src="790c8191287a389131ccb943681ac8e0.gif" alt="Mascote BNR" id="mainLogo">
+            <img src="790c8191287a389131ccb943681ac8e0.gif" alt="Logo BNR" id="mainLogo">
             <div class="rules-section">
-                <table class="rules-table">
-                    <tbody id="rulesTableBody">
-                        <tr><td>• Sem spam ou flood.</td></tr>
-                        <tr><td>• Respeite os outros membros.</td></tr>
-                        <tr><td>• Proibido conteúdo ilegal.</td></tr>
-                    </tbody>
+                <table>
+                    <tr><td>• Sem spam ou flood.</td></tr>
+                    <tr><td>• Respeite os outros membros.</td></tr>
+                    <tr><td>• Proibido conteúdo ilegal.</td></tr>
                 </table>
             </div>
             <button id="btnEnter" class="tg-main-btn">ENTRAR NO CHAT</button>
         </div>
     </div>
-
     <div id="appContainer" class="hidden">
-        <div id="sidebarOverlay" class="hidden"></div>
-        
         <aside id="sidebar">
             <div class="sidebar-header">Canais BNR</div>
             <div class="topic-list"></div>
             <div class="sidebar-footer">
-                <button id="adminBtn" class="admin-link">⚙️ Painel ADM</button>
+                <button id="adminBtn" class="admin-link" onclick="PainelADM.login()">⚙️ Painel ADM</button>
             </div>
         </aside>
-
         <main id="main">
             <header id="top">
                 <button id="menuToggle" class="icon-btn">☰</button>
@@ -44,35 +37,27 @@
                     <small>online agora</small>
                 </div>
             </header>
-
             <div id="content"></div>
-
             <footer id="footer">
                 <div id="fileInfo" class="hidden">
                     <span id="fileName"></span>
                     <button type="button" id="btnRemoveFile">×</button>
                 </div>
-
                 <form id="postForm">
                     <div class="input-area">
-                        <button type="button" id="btnAttach" class="icon-btn">📎</button>
-                        <input type="file" id="fileInput" accept="image/*,video/*,audio/*" class="hidden" style="display:none">
-                        
-                        <textarea id="postText" placeholder="Mensagem" rows="1" autocomplete="off"></textarea>
-                        
+                        <button type="button" id="btnAttach" onclick="document.getElementById('fileInput').click()" class="icon-btn">📎</button>
+                        <input type="file" id="fileInput" accept="image/*,video/*,audio/*" style="display:none">
+                        <textarea id="postText" placeholder="Mensagem" rows="1"></textarea>
                         <button type="button" id="btnRecord" class="icon-btn">🎙️</button>
-                        
                         <button type="submit" id="btnSend" class="icon-btn">➤</button>
                     </div>
                 </form>
             </footer>
         </main>
     </div>
-
     <script src="seguranca.js"></script>
     <script src="audio.js"></script>
     <script src="painel.js"></script>
     <script src="app.js"></script>
-
 </body>
 </html>
