@@ -1,10 +1,11 @@
-const STORAGE_KEY = 'bnr_prod_v1';
+const STORAGE_KEY = 'bnr_final_v3';
 let appState = { route: '/geral', posts: [], boards: [{name: '/geral'}, {name: '/dev'}], currentFile: null };
 
 const qs = (sel) => document.querySelector(sel);
 
-function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); }
-function load() { const data = localStorage.getItem(STORAGE_KEY); if(data) appState = JSON.parse(data); }
+// Carregar Dados
+const data = localStorage.getItem(STORAGE_KEY);
+if(data) appState = JSON.parse(data);
 
 function renderPosts() {
     const cont = qs('#content');
@@ -16,20 +17,27 @@ function renderPosts() {
         let media = '';
         if(p.file) {
             if(p.file.type.startsWith('image/')) media = `<img src="${p.file.data}" style="width:100%; border-radius:8px; margin-top:5px;">`;
-            else if(p.file.type.startsWith('audio/')) media = `<audio src="${p.file.data}" controls style="width:200px; height:40px; filter:invert(1);"></audio>`;
+            else if(p.file.type.startsWith('audio/')) media = `<audio src="${p.file.data}" controls style="width:200px; filter:invert(1);"></audio>`;
         }
-        div.innerHTML = `<b style="color:#50a7ea; font-size:12px;">${p.name}</b>${media}<div style="margin-top:4px;">${p.text}</div>`;
+        div.innerHTML = `<b style="color:#50a7ea; font-size:12px;">Anônimo</b>${media}<div>${p.text}</div>`;
         cont.appendChild(div);
     });
     cont.scrollTop = cont.scrollHeight;
 }
+
+// Eventos dos Botões
+qs('#btnEnter').onclick = () => {
+    qs('#welcomeScreen').classList.add('hidden');
+    qs('#appContainer').classList.remove('hidden');
+    renderPosts();
+};
 
 qs('#btnAttach').onclick = () => qs('#fileInput').click();
 
 qs('#fileInput').onchange = async (e) => {
     const file = e.target.files[0];
     if(!file) return;
-    if(file.type.startsWith('image/')) {
+    if(file.type.startsWith('image/') && typeof Defesa !== 'undefined') {
         appState.currentFile = { data: await Defesa.limparFoto(file), type: file.type };
     } else {
         const reader = new FileReader();
@@ -43,7 +51,7 @@ qs('#fileInput').onchange = async (e) => {
 qs('#btnRecord').onclick = () => {
     if (typeof mediaRecorder !== 'undefined' && mediaRecorder.state === "recording") {
         AudioBNR.parar();
-    } else {
+    } else if (typeof AudioBNR !== 'undefined') {
         AudioBNR.iniciar(qs('#btnRecord'));
     }
 };
@@ -61,31 +69,13 @@ qs('#postForm').onsubmit = (e) => {
 
     appState.posts.push({
         board: appState.route,
-        name: "Anônimo",
         text: typeof Defesa !== 'undefined' ? Defesa.sanitizar(txt.value) : txt.value,
         file: appState.currentFile
     });
 
-    txt.value = '';
-    appState.currentFile = null;
+    txt.value = ''; appState.currentFile = null;
     qs('#fileInfo').classList.add('hidden');
-    save();
-    renderPosts();
-};
-
-qs('#btnEnter').onclick = () => {
-    qs('#welcomeScreen').classList.add('hidden');
-    qs('#appContainer').classList.remove('hidden');
-    const list = qs('.topic-list');
-    list.innerHTML = '';
-    appState.boards.forEach(b => {
-        const btn = document.createElement('button');
-        btn.className = 'topic-item';
-        btn.style = "width:100%; padding:15px; background:none; border:none; color:white; text-align:left; cursor:pointer;";
-        btn.innerHTML = `<span>${b.name}</span>`;
-        btn.onclick = () => { appState.route = b.name; qs('#boardTitle').textContent = b.name; renderPosts(); };
-        list.appendChild(btn);
-    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
     renderPosts();
 };
 
@@ -93,5 +83,3 @@ qs('#btnRemoveFile').onclick = () => {
     appState.currentFile = null;
     qs('#fileInfo').classList.add('hidden');
 };
-
-load();
